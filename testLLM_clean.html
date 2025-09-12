@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hathr AI Test Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status.connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.assistant {
+            background: #f3f4f6;
+            color: #333;
+            align-self: flex-start;
+        }
+
+        .message.system {
+            background: #fef3c7;
+            color: #92400e;
+            align-self: center;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .config-section {
+            margin-bottom: 20px;
+        }
+
+        .config-section h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .config-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .documents-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .document-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .document-item {
+            padding: 8px;
+            background: #f9fafb;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .document-checkbox {
+            margin-right: 8px;
+        }
+
+        .file-upload {
+            margin-top: 10px;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload label {
+            display: inline-block;
+            padding: 10px 16px;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .file-upload label:hover {
+            background: #e5e7eb;
+        }
+
+        .settings-toggle {
+            margin-bottom: 10px;
+        }
+
+        .settings-content {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .settings-content.show {
+            display: block;
+        }
+
+        .slider-container {
+            margin-bottom: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .slider-value {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Hathr AI Test Interface</h1>
+            <span id="status" class="status disconnected">Desconectado</span>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="config-section">
+                    <h3>🔑 Credenciales</h3>
+                    <input type="text" id="clientId" class="config-input" placeholder="Client ID">
+                    <input type="password" id="clientSecret" class="config-input" placeholder="Client Secret">
+                    <button id="connectBtn" class="btn btn-primary" style="width: 100%;">Conectar</button>
+                </div>
+
+                <div class="settings-toggle">
+                    <button id="toggleSettings" class="btn btn-secondary" style="width: 100%;">⚙️ Configuración</button>
+                </div>
+                
+                <div id="settingsContent" class="settings-content">
+                    <div class="slider-container">
+                        <label>Temperature: <span id="tempValue" class="slider-value">0.7</span></label>
+                        <input type="range" id="temperature" class="slider" min="0" max="2" step="0.1" value="0.7">
+                    </div>
+                    <div class="slider-container">
+                        <label>Top P: <span id="topPValue" class="slider-value">1.0</span></label>
+                        <input type="range" id="topP" class="slider" min="0" max="1" step="0.1" value="1.0">
+                    </div>
+                </div>
+
+                <div class="documents-section">
+                    <h3>📄 Documentos</h3>
+                    <div class="file-upload">
+                        <label for="fileInput">
+                            📤 Subir documento
+                        </label>
+                        <input type="file" id="fileInput" accept=".pdf,.txt,.docx">
+                    </div>
+                    <button id="refreshDocs" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">
+                        🔄 Actualizar lista
+                    </button>
+                    <div id="documentList" class="document-list"></div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>💬 Chat</h2>
+                    <div id="selectedDocs" style="margin-top: 10px; font-size: 14px; color: #6b7280;"></div>
+                </div>
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message system">
+                        Configura tus credenciales y haz clic en "Conectar" para comenzar
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" placeholder="Escribe tu mensaje aquí..." disabled>
+                        <button id="sendBtn" class="btn btn-primary" disabled>Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USE_PROXY = true;
+        const PROXY_URL = 'http://localhost:3000'; 
+        // Estado global
+        let accessToken = null;
+        let selectedDocuments = [];
+        let conversationHistory = [];
+        let availableDocuments = [];
+
+        // Elementos DOM
+        const clientIdInput = document.getElementById('clientId');
+        const clientSecretInput = document.getElementById('clientSecret');
+        const connectBtn = document.getElementById('connectBtn');
+        const statusElement = document.getElementById('status');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const fileInput = document.getElementById('fileInput');
+        const documentList = document.getElementById('documentList');
+        const refreshDocsBtn = document.getElementById('refreshDocs');
+        const selectedDocsElement = document.getElementById('selectedDocs');
+        const toggleSettingsBtn = document.getElementById('toggleSettings');
+        const settingsContent = document.getElementById('settingsContent');
+        const temperatureSlider = document.getElementById('temperature');
+        const topPSlider = document.getElementById('topP');
+        const tempValue = document.getElementById('tempValue');
+        const topPValue = document.getElementById('topPValue');
+
+        // Toggle settings
+        toggleSettingsBtn.addEventListener('click', () => {
+            settingsContent.classList.toggle('show');
+        });
+
+        // Update slider values
+        temperatureSlider.addEventListener('input', (e) => {
+            tempValue.textContent = e.target.value;
+        });
+
+        topPSlider.addEventListener('input', (e) => {
+            topPValue.textContent = e.target.value;
+        });
+
+        // Obtener token de acceso
+        async function getAccessToken(clientId, clientSecret) {
+            try {
+                const authUrl = USE_PROXY 
+                    ? `${PROXY_URL}/proxy/auth`
+                    : 'https://hathr.auth-fips.us-gov-west-1.amazoncognito.com/oauth2/token';
+                
+                let response;
+                
+                if (USE_PROXY) {
+                    // Usar proxy
+                    response = await fetch(authUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ clientId, clientSecret })
+                    });
+                } else {
+                    // Llamada directa (no funcionará por CORS)
+                    const credentials = btoa(`${clientId}:${clientSecret}`);
+                    response = await fetch(authUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Authorization': `Basic ${credentials}`
+                        },
+                        body: 'grant_type=client_credentials&scope=hathr/llm'
+                    });
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Auth failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.access_token;
+            } catch (error) {
+                console.error('Error getting access token:', error);
+                throw error;
+            }
+        }
+
+        // Conectar con Hathr
+        connectBtn.addEventListener('click', async () => {
+            const clientId = clientIdInput.value.trim();
+            const clientSecret = clientSecretInput.value.trim();
+
+            if (!clientId || !clientSecret) {
+                alert('Por favor ingresa Client ID y Client Secret');
+                return;
+            }
+
+            console.clear(); // Limpiar consola para ver mejor
+            console.log('🚀 INICIANDO CONEXIÓN CON HATHR AI');
+            console.log('=====================================');
+
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '<span class="loading"></span> Conectando...';
+
+            try {
+                accessToken = await getAccessToken(clientId, clientSecret);
+                
+                statusElement.textContent = 'Conectado';
+                statusElement.className = 'status connected';
+                
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                
+                addSystemMessage('✅ Conectado exitosamente a Hathr AI');
+                
+                console.log('🎉 CONEXIÓN EXITOSA');
+                console.log('Puedes empezar a chatear con el modelo');
+                
+                // Cargar documentos disponibles
+                await loadDocuments();
+                
+            } catch (error) {
+                statusElement.textContent = 'Error de conexión';
+                statusElement.className = 'status disconnected';
+                addSystemMessage(`❌ Error: ${error.message}`);
+                console.error('💥 FALLO EN LA CONEXIÓN');
+            } finally {
+                connectBtn.disabled = false;
+                connectBtn.textContent = 'Conectar';
+            }
+        });
+
+        // Cargar lista de documentos
+        async function loadDocuments() {
+            if (!accessToken) return;
+
+            try {
+                const url = USE_PROXY 
+                    ? `${PROXY_URL}/proxy/document/list`
+                    : 'https://api.hathr.ai/v1/document/list';
+                    
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    availableDocuments = data.response?.documents || [];
+                    updateDocumentList();
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        }
+
+        // Actualizar lista de documentos en UI
+        function updateDocumentList() {
+            documentList.innerHTML = '';
+            
+            if (availableDocuments.length === 0) {
+                documentList.innerHTML = '<div style="color: #6b7280; font-size: 14px;">No hay documentos disponibles</div>';
+                return;
+            }
+
+            availableDocuments.forEach(doc => {
+                const docItem = document.createElement('div');
+                docItem.className = 'document-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'document-checkbox';
+                checkbox.value = doc.name;
+                checkbox.id = `doc-${doc.name}`;
+                
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedDocuments.push(doc.name);
+                    } else {
+                        selectedDocuments = selectedDocuments.filter(d => d !== doc.name);
+                    }
+                    updateSelectedDocsDisplay();
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = `doc-${doc.name}`;
+                label.style.cursor = 'pointer';
+                label.textContent = doc.name;
+
+                docItem.appendChild(checkbox);
+                docItem.appendChild(label);
+                documentList.appendChild(docItem);
+            });
+        }
+
+        // Actualizar display de documentos seleccionados
+        function updateSelectedDocsDisplay() {
+            if (selectedDocuments.length > 0) {
+                selectedDocsElement.textContent = `📎 Documentos seleccionados: ${selectedDocuments.join(', ')}`;
+            } else {
+                selectedDocsElement.textContent = '';
+            }
+        }
+
+        // Subir documento
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !accessToken) return;
+
+            const uploadBtn = fileInput.previousElementSibling;
+            uploadBtn.textContent = '⏳ Subiendo...';
+
+            try {
+                // 1. Obtener URL pre-firmada
+                const uploadUrl = USE_PROXY 
+                    ? `${PROXY_URL}/proxy/document/upload`
+                    : 'https://api.hathr.ai/v1/document/upload';
+                    
+                const uploadUrlResponse = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: file.name,
+                        type: file.type
+                    })
+                });
+
+                if (!uploadUrlResponse.ok) {
+                    const errorData = await uploadUrlResponse.json().catch(() => ({}));
+                    console.error('Upload URL error response:', errorData);
+                    throw new Error(`Error obteniendo URL de carga: ${uploadUrlResponse.status} - ${errorData.message || 'Error desconocido'}`);
+                }
+
+                const uploadData = await uploadUrlResponse.json();
+                console.log('Upload response:', uploadData); // Debug
+                
+                // Intentar diferentes estructuras de respuesta
+                const signedUrl = uploadData.response?.signedUrl || 
+                                uploadData.signedUrl || 
+                                uploadData.data?.signedUrl ||
+                                uploadData.uploadUrl;
+                
+                if (!signedUrl) {
+                    console.error('No signedUrl found in response:', uploadData);
+                    throw new Error('No se pudo obtener la URL de carga del documento');
+                }
+
+                // 2. Subir archivo a S3
+                const uploadResponse = await fetch(signedUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type
+                    }
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Error subiendo archivo');
+                }
+
+                addSystemMessage(`✅ Documento "${file.name}" subido exitosamente`);
+
+                // 3. Esperar procesamiento
+                await waitForDocumentProcessing();
+                
+                // 4. Recargar lista de documentos
+                await loadDocuments();
+
+            } catch (error) {
+                addSystemMessage(`❌ Error subiendo documento: ${error.message}`);
+            } finally {
+                uploadBtn.textContent = '📤 Subir documento';
+                fileInput.value = '';
+            }
+        });
+
+        // Esperar a que el documento se procese
+        async function waitForDocumentProcessing() {
+            let attempts = 0;
+            const maxAttempts = 30;
+
+            while (attempts < maxAttempts) {
+                try {
+                    const url = USE_PROXY 
+                        ? `${PROXY_URL}/proxy/document/complete`
+                        : 'https://api.hathr.ai/v1/document/complete';
+                        
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.code === 200) {
+                        return true;
+                    }
+
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    attempts++;
+                } catch (error) {
+                    console.error('Error checking document status:', error);
+                    break;
+                }
+            }
+
+            return false;
+        }
+
+        // Refrescar documentos
+        refreshDocsBtn.addEventListener('click', async () => {
+            refreshDocsBtn.disabled = true;
+            refreshDocsBtn.textContent = '⏳ Actualizando...';
+            
+            await loadDocuments();
+            
+            refreshDocsBtn.disabled = false;
+            refreshDocsBtn.textContent = '🔄 Actualizar lista';
+        });
+
+        // Enviar mensaje
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            const token = await ensureValidToken();
+            if (!token) {
+                addSystemMessage('❌ No hay conexión. Por favor, conecta primero.');
+                return;
+            }
+
+            messageInput.value = '';
+            addUserMessage(message);
+
+            // Agregar al historial
+            conversationHistory.push({
+                role: 'user',
+                text: message
+            });
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="loading"></span>';
+
+            try {
+                let response;
+                
+                // Determinar si usar endpoint de documentos o chat normal
+                if (selectedDocuments.length > 0) {
+                    const url = USE_PROXY 
+                        ? `${PROXY_URL}/proxy/document/chat`
+                        : 'https://api.hathr.ai/v1/document/chat';
+                        
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            documents: selectedDocuments,
+                            messages: conversationHistory
+                        })
+                    });
+                } else {
+                    const url = USE_PROXY 
+                        ? `${PROXY_URL}/proxy/chat`
+                        : 'https://api.hathr.ai/v1/chat';
+                        
+                    response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            messages: conversationHistory,
+                            temperature: parseFloat(temperatureSlider.value),
+                            topP: parseFloat(topPSlider.value)
+                        })
+                    });
+                }
+
+                if (response.status === 401) {
+                    throw new Error('Token expirado. Reconectando...');
+                }
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Chat response:', data); // Debug
+                
+                // Extraer la respuesta del modelo
+                let assistantMessage = 'Sin respuesta';
+                
+                // Intentar diferentes estructuras de respuesta
+                if (data.response && data.response.text) {
+                    assistantMessage = data.response.text;
+                } else if (data.data && data.data.text) {
+                    assistantMessage = data.data.text;
+                } else if (data.data && data.data.message) {
+                    assistantMessage = data.data.message;
+                } else if (data.data && data.data.response && data.data.response.text) {
+                    assistantMessage = data.data.response.text;
+                } else if (data.data && data.data.response && data.data.response.message) {
+                    assistantMessage = data.data.response.message;
+                } else if (data.response && data.response.message) {
+                    assistantMessage = data.response.message;
+                } else if (data.message && data.message !== 'Success') {
+                    assistantMessage = data.message;
+                } else if (data.data && typeof data.data === 'string') {
+                    assistantMessage = data.data;
+                } else if (data.response && typeof data.response === 'string') {
+                    assistantMessage = data.response;
+                } else if (typeof data === 'string' && data !== 'Success') {
+                    assistantMessage = data;
+                } else if (data.text) {
+                    assistantMessage = data.text;
+                } else {
+                    // Si no encontramos la respuesta, mostrar la estructura completa para debug
+                    assistantMessage = `Respuesta del modelo no encontrada. Estructura: ${JSON.stringify(data, null, 2)}`;
+                }
+                
+                addAssistantMessage(assistantMessage);
+                
+                // Agregar respuesta al historial
+                conversationHistory.push({
+                    role: 'assistant',
+                    text: assistantMessage
+                });
+
+            } catch (error) {
+                addSystemMessage(`❌ Error: ${error.message}`);
+                
+                // Si es error de autenticación, intentar renovar
+                if (error.message.includes('401') || error.message.includes('expirado')) {
+                    await renewToken();
+                }
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Enviar';
+            }
+        }
+
+        // Event listeners para enviar mensaje
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Funciones de UI para mensajes
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addAssistantMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Asegurar token válido
+        async function ensureValidToken() {
+            if (!accessToken) {
+                const clientId = clientIdInput.value.trim();
+                const clientSecret = clientSecretInput.value.trim();
+                
+                if (!clientId || !clientSecret) {
+                    return null;
+                }
+                
+                try {
+                    accessToken = await getAccessToken(clientId, clientSecret);
+                    return accessToken;
+                } catch (error) {
+                    console.error('Error renewing token:', error);
+                    return null;
+                }
+            }
+            return accessToken;
+        }
+
+        // Renovar token
+        async function renewToken() {
+            accessToken = null;
+            return await ensureValidToken();
+        }
+
+        // Cargar credenciales guardadas (opcional)
+        if (localStorage.getItem('hathr_client_id')) {
+            clientIdInput.value = localStorage.getItem('hathr_client_id');
+        }
+
+        // Guardar credenciales (opcional - solo para desarrollo)
+        clientIdInput.addEventListener('change', (e) => {
+            localStorage.setItem('hathr_client_id', e.target.value);
+        });
+    </script>
+</body>
+</html>
